@@ -32,6 +32,13 @@ public class QuizActivity extends AppCompatActivity {
     setContentView(R.layout.activity_quiz);
 
     mQuestionTextView = findViewById(R.id.question_text_view);
+    mQuestionTextView.setOnClickListener(new View.OnClickListener(){
+      @Override
+      public void onClick(View v){
+        updateIndex(); // increment current index
+        updateQuestion(); // change question TextView text to next element
+      }
+    });
 
     mTrueButton =  findViewById(R.id.true_button);
     mTrueButton.setOnClickListener(new View.OnClickListener(){
@@ -53,7 +60,7 @@ public class QuizActivity extends AppCompatActivity {
     mNextButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v){
-        mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
+        updateIndex();
         updateQuestion();
       }
     });
@@ -74,5 +81,9 @@ public class QuizActivity extends AppCompatActivity {
       messageResId = R.string.incorrect_toast;
     }
     Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show();
+  }
+
+  private void updateIndex() {
+    mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
   }
 }
