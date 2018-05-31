@@ -35,7 +35,7 @@ public class QuizActivity extends AppCompatActivity {
     mQuestionTextView.setOnClickListener(new View.OnClickListener(){
       @Override
       public void onClick(View v){
-        updateIndex(); // increment current index
+        incrementIndex(); // increment current index
         updateQuestion(); // change question TextView text to next element
       }
     });
@@ -60,7 +60,7 @@ public class QuizActivity extends AppCompatActivity {
     mNextButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v){
-        updateIndex();
+        incrementIndex();
         updateQuestion();
       }
     });
@@ -83,7 +83,12 @@ public class QuizActivity extends AppCompatActivity {
     Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show();
   }
 
-  private void updateIndex() {
+  private void incrementIndex() {
     mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
+  }
+
+  // FIXME: use in onClick interface for previous button
+  private void decrementIndex(){
+    mCurrentIndex = Math.abs(mCurrentIndex - 1) % mQuestionBank.length;
   }
 }
