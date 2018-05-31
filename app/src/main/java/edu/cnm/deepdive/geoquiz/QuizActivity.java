@@ -81,13 +81,8 @@ public class QuizActivity extends AppCompatActivity {
 
   private void checkAnswer(boolean userPressedTrue) {
     boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
-    int messageResId = 0;
-
-    if (userPressedTrue == answerIsTrue) {
-      messageResId = R.string.correct_toast;
-    } else {
-      messageResId = R.string.incorrect_toast;
-    }
+    int messageResId = (userPressedTrue == answerIsTrue) ?
+                      R.string.correct_toast : R.string.incorrect_toast;
     Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show();
   }
 
@@ -96,8 +91,8 @@ public class QuizActivity extends AppCompatActivity {
   }
 
   private void decrementIndex() {
-    // if index already at first element make no changes
-    mCurrentIndex = (mCurrentIndex < 1) ? 0 : (mCurrentIndex - 1) % mQuestionBank.length;
+    // if index already at first element move to last element.
+    mCurrentIndex = (mCurrentIndex < 1) ? mQuestionBank.length - 1 : mCurrentIndex - 1;
   }
 
   private void updateQuestion() {
