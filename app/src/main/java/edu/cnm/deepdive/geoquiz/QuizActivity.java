@@ -1,5 +1,6 @@
 package edu.cnm.deepdive.geoquiz;
 
+import android.content.res.Resources;
 import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,6 +11,8 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.util.ArrayList;
+import java.util.List;
 
 public class QuizActivity extends AppCompatActivity {
 
@@ -22,6 +25,8 @@ public class QuizActivity extends AppCompatActivity {
   private ImageButton mPrevButton;
   private TextView mQuestionTextView;
 
+  private List<Integer> answered = new ArrayList<>();
+
 
   private Question[] mQuestionBank = new Question[]{
       new Question(R.string.question_australia, true),
@@ -31,6 +36,8 @@ public class QuizActivity extends AppCompatActivity {
       new Question(R.string.question_americas, true),
       new Question(R.string.question_asia, true)
   };
+  private int correct = 0;
+
 
   private int mCurrentIndex = 0;
 
@@ -57,7 +64,12 @@ public class QuizActivity extends AppCompatActivity {
     mTrueButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
+        if (answered.contains(mCurrentIndex)) {
+          Toast.makeText(QuizActivity.this, "You've already answered this question.", Toast.LENGTH_LONG).show();
+          return;
+        }
         checkAnswer(true);
+        answered.add(mCurrentIndex);
       }
     });
 
@@ -65,7 +77,12 @@ public class QuizActivity extends AppCompatActivity {
     mFalseButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
+        if (answered.contains(mCurrentIndex)) {
+          Toast.makeText(QuizActivity.this, "You've already answered this question.", Toast.LENGTH_LONG).show();
+          return;
+        }
         checkAnswer(false);
+        answered.add(mCurrentIndex);
       }
     });
 
@@ -73,6 +90,11 @@ public class QuizActivity extends AppCompatActivity {
     mNextButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
+        if (answered.size() == mQuestionBank.length) {
+          double score = (double) correct / mQuestionBank.length;
+          String scoreMsg = String.format(getResources().getString(R.string.quiz_score), Double.toString(score));
+          Toast.makeText(QuizActivity.this, scoreMsg, Toast.LENGTH_LONG).show();
+        }
         incrementIndex();
         updateQuestion();
       }
@@ -128,6 +150,9 @@ public class QuizActivity extends AppCompatActivity {
 
   private void checkAnswer(boolean userPressedTrue) {
     boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
+    if (answerIsTrue) {
+      ++correct;
+    }
     int messageResId = (userPressedTrue == answerIsTrue) ?
                       R.string.correct_toast : R.string.incorrect_toast;
     Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show();
