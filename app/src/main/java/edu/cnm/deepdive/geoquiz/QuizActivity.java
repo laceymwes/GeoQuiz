@@ -1,5 +1,7 @@
 package edu.cnm.deepdive.geoquiz;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
@@ -18,12 +20,16 @@ public class QuizActivity extends AppCompatActivity {
 
   private static final String TAG = "QuizActivity";
   private static final String KEY_INDEX = "index";
+  private final static int REQUEST_CODE_CHEAT = 0;
+
 
   private Button mTrueButton;
   private Button mFalseButton;
-  private ImageButton mNextButton;
-  private ImageButton mPrevButton;
+  private Button mCheatButton;
+  private Button mNextButton;
+  private Button mPrevButton;
   private TextView mQuestionTextView;
+
 
   private List<Integer> answered = new ArrayList<>();
 
@@ -40,6 +46,7 @@ public class QuizActivity extends AppCompatActivity {
 
 
   private int mCurrentIndex = 0;
+  private boolean mIsCheater;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -100,7 +107,16 @@ public class QuizActivity extends AppCompatActivity {
       }
     });
 
-    mPrevButton = findViewById(R.id.prev_button);
+    mCheatButton = findViewById(R.id.cheat_button);
+    mCheatButton.setOnClickListener( new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
+        startActivityForResult(CheatActivity.newItent(getApplicationContext(), answerIsTrue), REQUEST_CODE_CHEAT);
+      }
+      }
+    );
+    
     mPrevButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -109,6 +125,19 @@ public class QuizActivity extends AppCompatActivity {
       }
     });
     updateQuestion();
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if (resultCode != Activity.RESULT_OK) {
+      return;
+    }
+    if (requestCode == REQUEST_CODE_CHEAT) {
+      if (data == null) {
+        return;
+      }
+      mIsCheater = CheatActivity.wasAnswerShown(data);
+    }
   }
 
   @Override
@@ -153,13 +182,20 @@ public class QuizActivity extends AppCompatActivity {
     if (answerIsTrue) {
       ++correct;
     }
-    int messageResId = (userPressedTrue == answerIsTrue) ?
-                      R.string.correct_toast : R.string.incorrect_toast;
+    int messageResId;
+    if (mIsCheater) {
+      messageResId = R.string.judgement_toast;
+    }
+    else {
+      messageResId = (userPressedTrue == answerIsTrue) ?
+          R.string.correct_toast : R.string.incorrect_toast;
+    }
     Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show();
   }
 
   private void incrementIndex() {
     mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
+    mIsCheater = false;
   }
 
   private void decrementIndex() {
